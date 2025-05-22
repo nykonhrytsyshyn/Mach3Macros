@@ -19,7 +19,7 @@ Const PlateOffset As Double = 0.0      ' Offset for the touch plate (units)
 Const SafeMargin As Double = 1.0       ' Safe margin to return the tool from certain position (units)
 Const ZUpperBound As Double = 0.0      ' Upper Z-axis boundary in machine coordinates (units)
 Const ZLowerBound As Double = -60.0    ' Lower Z-axis boundary in machine coordinates (units)
-   
+
 Const DebugMode As Boolean = False     ' Set to True to enable debug messages
 
 ' ---------------------------------------------------------------------------------- '
@@ -43,7 +43,7 @@ Const DebugMode As Boolean = False     ' Set to True to enable debug messages
 ' ---------------------------------------------------------------------------------- '
 
 Const ProbeSignal As Integer = 22        ' Input number for probe signal
-        
+
 Const ProbeLED As Integer = 825          ' LED number for probe (Diditize Input)
 Const CoordAbsLED As Integer = 48        ' LED number for absolute coordinates
 Const CoordIncLED As Integer = 49        ' LED number for incremental coordinates
@@ -121,7 +121,7 @@ Const CAxis As Integer = 5
 ' Custom macro-specific constants and variables '
 ' --------------------------------------------- '
 ' These constants and variables are only        '
-' used in this macro and are not part of the    ' 
+' used in this macro and are not part of the    '
 ' Mach3 API.                                    '
 ' --------------------------------------------- '
 
@@ -186,44 +186,44 @@ Call Main() ' Calls the main subroutine, all logic is executed here
 '
 ' This is where the main logic of the macro is executed.
 Sub Main()
-	' Check if the "E-Stop" is active
-	' If it is, exit the macro and display an error message
-	If (IsEStop()) Then
-		Call ExitWithError(MsgTypeDialog, "E-Stop is active!" & CrLf & _
-			"Please reset the E-Stop before running the macro.")
-	End If
+    ' Check if the "E-Stop" is active
+    ' If it is, exit the macro and display an error message
+    If (IsEStop()) Then
+        Call ExitWithError(MsgTypeDialog, "E-Stop is active!" & CrLf & _
+            "Please reset the E-Stop before running the macro.")
+    End If
 
-	' Debug saved parameters
-	Call Debug(MsgTypeDialog, "Current Savings:" & CrLf & _
-		"- Move Mode: " & CurrentMoveMode & " (" & TernaryIf(CurrentMoveMode = MoveModeRapid, "G00 - Rapid)", "G01 - Linear)") & CrLf & _
-		"- Units: " & CurrentUnits & " (" & TernaryIf(CurrentUnits = UnitsIn, "G20 - Inches)", "G21 - Millimeters)") & CrLf & _
-		"- Coordinate Mode: " & CurrentCoordMode & " (" & TernaryIf(CurrentCoordMode = CoordModeAbsolute, "G90 - Absolute)", "G91 - Incremental)") & CrLf & _
-		"- Feedrate: " & CurrentFeed & TernaryIf(CurrentUnits = UnitsIn, "in/min", "mm/min") & CrLf & _
-		"- Position in Machine Coordinates:" & CrLf & _
-		"  - X: " & CurrentX & MacroUnitsStr & CrLf & _
-		"  - Y: " & CurrentY & MacroUnitsStr & CrLf & _
-		"  - Z: " & CurrentZ & MacroUnitsStr)
+    ' Debug saved parameters
+    Call Debug(MsgTypeDialog, "Current Savings:" & CrLf & _
+        "- Move Mode: " & CurrentMoveMode & " (" & TernaryIf(CurrentMoveMode = MoveModeRapid, "G00 - Rapid)", "G01 - Linear)") & CrLf & _
+        "- Units: " & CurrentUnits & " (" & TernaryIf(CurrentUnits = UnitsIn, "G20 - Inches)", "G21 - Millimeters)") & CrLf & _
+        "- Coordinate Mode: " & CurrentCoordMode & " (" & TernaryIf(CurrentCoordMode = CoordModeAbsolute, "G90 - Absolute)", "G91 - Incremental)") & CrLf & _
+        "- Feedrate: " & CurrentFeed & TernaryIf(CurrentUnits = UnitsIn, "in/min", "mm/min") & CrLf & _
+        "- Position in Machine Coordinates:" & CrLf & _
+        "  - X: " & CurrentX & MacroUnitsStr & CrLf & _
+        "  - Y: " & CurrentY & MacroUnitsStr & CrLf & _
+        "  - Z: " & CurrentZ & MacroUnitsStr)
 
-	' Check for probe wiring
-	If (IsSuchSignal(ProbeSignal) = 0) Then 
-		Call ExitWithError(MsgTypeDialog, "No Touch probe wired")
-	End If 
+    ' Check for probe wiring
+    If (IsSuchSignal(ProbeSignal) = 0) Then
+        Call ExitWithError(MsgTypeDialog, "No Touch probe wired")
+    End If
 
-	' Check for probe grounding
-	If (IsProbeWired()) Then
-		Call ExitWithError(MsgTypeDialog, "Touch Plate is already grounded")
-	End If
+    ' Check for probe grounding
+    If (IsProbeWired()) Then
+        Call ExitWithError(MsgTypeDialog, "Touch Plate is already grounded")
+    End If
 
-	' Ask user for the mode of the operation
-	Dim MacroMode As Integer
-	MacroMode = SuggestModes()
+    ' Ask user for the mode of the operation
+    Dim MacroMode As Integer
+    MacroMode = SuggestModes()
 
-	' Debug selected mode
-	Call Debug(MsgTypeStatus, "Selected mode: " & MacroMode & " (" & _
-		TernaryIf(MacroMode = ZeroCoordMode, "Zero Tool", "Set Tool Length Compensation") & ")")
+    ' Debug selected mode
+    Call Debug(MsgTypeStatus, "Selected mode: " & MacroMode & " (" & _
+        TernaryIf(MacroMode = ZeroCoordMode, "Zero Tool", "Set Tool Length Compensation") & ")")
 
-	Call RunMacroMode(MacroMode) ' Run the selected mode
-	Call ExitMacro()             ' Exit the macro and restore original values
+    Call RunMacroMode(MacroMode) ' Run the selected mode
+    Call ExitMacro()             ' Exit the macro and restore original values
 End Sub
 
 ' --------------------------------------------- '
@@ -233,15 +233,15 @@ End Sub
 ' This function is called to suggest the user the
 ' available modes of interaction with the macro.
 Function SuggestModes() As Integer
-	' Tell the user about available modes
-	Call CancellableMsg("After pressing OK, you will be prompted to select the mode of operation." & CrLf & CrLf & _
-		"Available modes:" & CrLf & _
-		ZeroCoordMode & ". Set Z-axis to zero by probing the touch plate." & CrLf & _
-		ToolCompMode & ". Set tool length compensation by probing the touch plate.", _
-		"Auto Tool Zero")
+    ' Tell the user about available modes
+    Call CancellableMsg("After pressing OK, you will be prompted to select the mode of operation." & CrLf & CrLf & _
+        "Available modes:" & CrLf & _
+        ZeroCoordMode & ". Set Z-axis to zero by probing the touch plate." & CrLf & _
+        ToolCompMode & ". Set tool length compensation by probing the touch plate.", _
+        "Auto Tool Zero")
 
-	' Ask user for the mode of the operation and return it
-	SuggestModes = CInt(Question("Enter mode of the operation:"))
+    ' Ask user for the mode of the operation and return it
+    SuggestModes = CInt(Question("Enter mode of the operation:"))
 End Function
 
 ' This subroutine is called to run the selected macro mode.
@@ -249,14 +249,14 @@ End Function
 ' It will call the appropriate subroutine based on the mode
 ' selected by the user.
 Sub RunMacroMode(ByVal Mode As Integer)
-	Select Case Mode
-		Case ZeroCoordMode
-			Call ZeroZCoordinate()
-		Case ToolCompMode
-			Call ToolLengthCompensation()
-		Case Else
-			Call ExitWithError(MsgTypeDialog, "Invalid mode selected")
-	End Select
+    Select Case Mode
+        Case ZeroCoordMode
+            Call ZeroZCoordinate()
+        Case ToolCompMode
+            Call ToolLengthCompensation()
+        Case Else
+            Call ExitWithError(MsgTypeDialog, "Invalid mode selected")
+    End Select
 End Sub
 
 ' Sets the Z-axis to zero by probing the touch plate.
@@ -266,38 +266,38 @@ End Sub
 '
 ' Program mode = 0 (ZeroCoordMode)
 Sub ZeroZCoordinate()
-	' Propose the user to enter the offset value for Z-Axis
-	' which will be added to the probe position
-	Dim Offset As Double
-	Offset = Question("Enter the offset value for Z-Axis (" & MacroUnitsStr & "):")
+    ' Propose the user to enter the offset value for Z-Axis
+    ' which will be added to the probe position
+    Dim Offset As Double
+    Offset = Question("Enter the offset value for Z-Axis (" & MacroUnitsStr & "):")
 
-	' Propose the user to send the machine to home position
-	' If the user presses OK, it will automatically send the 
-	' machine to home position, otherwise the machine will
-	' be sent to only safe Z position.
-	Dim ReturnMsg As Boolean
-	ReturnMsg = ProposeSendHome()
+    ' Propose the user to send the machine to home position
+    ' If the user presses OK, it will automatically send the
+    ' machine to home position, otherwise the machine will
+    ' be sent to only safe Z position.
+    Dim ReturnMsg As Boolean
+    ReturnMsg = ProposeSendHome()
 
-	' Probe the Z-axis 
-	Dim ProbePos As Double
-	ProbePos = StartProbing() + PlateOffset + Offset
+    ' Probe the Z-axis
+    Dim ProbePos As Double
+    ProbePos = StartProbing() + PlateOffset + Offset
 
-	Dim ReturnMsgSet As Boolean
-	ReturnMsgSet = MachMSG("Z-axis position: " & ProbePos & MacroUnitsStr & CrLf & CrLf & _
-		"Press OK to continue or Cancel to deny the offset.", _
-		"Auto Tool Zero", MachMsgTypeOKCancel)
+    Dim ReturnMsgSet As Boolean
+    ReturnMsgSet = MachMSG("Z-axis position: " & ProbePos & MacroUnitsStr & CrLf & CrLf & _
+        "Press OK to continue or Cancel to deny the offset.", _
+        "Auto Tool Zero", MachMsgTypeOKCancel)
 
-	' Set the Z-axis offset in the current fixture
-	Call SetOEMDRO(FixtureOffsetZDRO, ProbePos)
+    ' Set the Z-axis offset in the current fixture
+    Call SetOEMDRO(FixtureOffsetZDRO, ProbePos)
 
-	' Send the machine to home or safe Z
-	If (ReturnMsg) Then
-		Call MachMSG("Sends the machine to home position", "Auto Tool Zero", MachMsgTypeOK)
-		Call SendHome()
-	Else 
-		Call MachMSG("Sends the machine to safe Z position", "Auto Tool Zero", MachMsgTypeOK)
-		Call SendSafeZ(ZUpperBound)
-	End If
+    ' Send the machine to home or safe Z
+    If (ReturnMsg) Then
+        Call MachMSG("Sends the machine to home position", "Auto Tool Zero", MachMsgTypeOK)
+        Call SendHome()
+    Else
+        Call MachMSG("Sends the machine to safe Z position", "Auto Tool Zero", MachMsgTypeOK)
+        Call SendSafeZ(ZUpperBound)
+    End If
 End Sub
 
 ' Sets the tool length compensation by probing the touch plate
@@ -312,100 +312,100 @@ End Sub
 '
 ' Program mode = 1 (ToolCompMode)
 Sub ToolLengthCompensation()
-	' Cancel tool length compensation
-	Call Code("G49")
+    ' Cancel tool length compensation
+    Call Code("G49")
 
-	Dim FirstTool, SecondTool As Integer
-	FirstTool = GetCurrentTool()
+    Dim FirstTool, SecondTool As Integer
+    FirstTool = GetCurrentTool()
 
-	' Ask user for the first tool number if it is not set
-	If (FirstTool = 0) Then
-		' Ask user for the tool number
-		FirstTool = CInt(Question("Enter the first tool number (1-255):"))
+    ' Ask user for the first tool number if it is not set
+    If (FirstTool = 0) Then
+        ' Ask user for the tool number
+        FirstTool = CInt(Question("Enter the first tool number (1-255):"))
 
-		' Check if the tool number is valid
-		If (FirstTool < 1 Or FirstTool > 255) Then
-			Call ExitWithError(MsgTypeDialog, "Invalid tool number")
-		End If
+        ' Check if the tool number is valid
+        If (FirstTool < 1 Or FirstTool > 255) Then
+            Call ExitWithError(MsgTypeDialog, "Invalid tool number")
+        End If
 
-		' Select the first tool
-		Call SetCurrentTool(FirstTool)
-	End If
+        ' Select the first tool
+        Call SetCurrentTool(FirstTool)
+    End If
 
-	' Ask user for the second tool number
-	SecondTool = CInt(Question("Enter the second tool number (1-255):"))
+    ' Ask user for the second tool number
+    SecondTool = CInt(Question("Enter the second tool number (1-255):"))
 
-	' Check if the tool number is valid
-	If (SecondTool < 1 Or SecondTool > 255) Then
-		Call ExitWithError(MsgTypeDialog, "Invalid tool number")
-	End If
+    ' Check if the tool number is valid
+    If (SecondTool < 1 Or SecondTool > 255) Then
+        Call ExitWithError(MsgTypeDialog, "Invalid tool number")
+    End If
 
-	' Propose the user to send the machine to home position
-	' If the user presses OK, it will automatically send the 
-	' machine to home position, otherwise the machine will
-	' be sent to only safe Z position.
-	Dim ReturnMsg As Boolean
-	ReturnMsg = ProposeSendHome()
+    ' Propose the user to send the machine to home position
+    ' If the user presses OK, it will automatically send the
+    ' machine to home position, otherwise the machine will
+    ' be sent to only safe Z position.
+    Dim ReturnMsg As Boolean
+    ReturnMsg = ProposeSendHome()
 
-	Dim FirstToolPos, SecondToolPos As Double
+    Dim FirstToolPos, SecondToolPos As Double
 
-	' Probe the Z-axis of the first tool
-	FirstToolPos = StartProbing()
-	Call Debug(MsgTypeDialog, "First tool position: " & FirstToolPos & MacroUnitsStr)
-	
-	' Send the machine to home or safe Z
-	If (ReturnMsg) Then
-		Call MachMSG("Sends the machine to home position", "Auto Tool Zero", MachMsgTypeOK)
-		Call SendHome()
-	Else 
-		Call MachMSG("Sends the machine to safe Z position", "Auto Tool Zero", MachMsgTypeOK)
-		Call SendSafeZ(ZUpperBound)
-	End If
+    ' Probe the Z-axis of the first tool
+    FirstToolPos = StartProbing()
+    Call Debug(MsgTypeDialog, "First tool position: " & FirstToolPos & MacroUnitsStr)
 
-	' Propose the user to change the tool
-	Call ProposeToolChange()
+    ' Send the machine to home or safe Z
+    If (ReturnMsg) Then
+        Call MachMSG("Sends the machine to home position", "Auto Tool Zero", MachMsgTypeOK)
+        Call SendHome()
+    Else
+        Call MachMSG("Sends the machine to safe Z position", "Auto Tool Zero", MachMsgTypeOK)
+        Call SendSafeZ(ZUpperBound)
+    End If
 
-	' Set the second tool as the current tool
-	Call SetCurrentTool(SecondTool)
+    ' Propose the user to change the tool
+    Call ProposeToolChange()
 
-	' Probe the Z-axis of the second tool
-	SecondToolPos = StartProbing()
-	Call Debug(MsgTypeDialog, "Second tool position: " & SecondToolPos & MacroUnitsStr)
+    ' Set the second tool as the current tool
+    Call SetCurrentTool(SecondTool)
 
-	' Calculate tool compensation with the difference between
-	' the two tool lengths
-	Dim ToolComp As Double
-	ToolComp = SecondToolPos - FirstToolPos
+    ' Probe the Z-axis of the second tool
+    SecondToolPos = StartProbing()
+    Call Debug(MsgTypeDialog, "Second tool position: " & SecondToolPos & MacroUnitsStr)
 
-	' Ask user for a confirmation to set the tool length compensation
-	Dim ReturnMsgComp As Boolean
-	ReturnMsgComp = MachMSG("Tool length compensation: " & ToolComp & MacroUnitsStr & CrLf & CrLf & _
-		"Press OK to continue or Cancel to deny the compensation.", _
-		"Auto Tool Zero", MachMsgTypeOKCancel)
+    ' Calculate tool compensation with the difference between
+    ' the two tool lengths
+    Dim ToolComp As Double
+    ToolComp = SecondToolPos - FirstToolPos
 
-	If (ReturnMsgComp = MachMsgReturnOK) Then
-		' Set the tool length compensation for the second tool
-		' if the user confirms the compensation
-		Call SetToolParam(SecondTool, ToolZoffsetParam, ToolComp)
-		Call Code("G43")                                         
-	Else
-		' Cancel tool length compensation and switch back to
-		' the first tool if the user denies the compensation
-		Call Message("Tool length compensation canceled")
-		Call SetCurrentTool(FirstTool)
-	End If
+    ' Ask user for a confirmation to set the tool length compensation
+    Dim ReturnMsgComp As Boolean
+    ReturnMsgComp = MachMSG("Tool length compensation: " & ToolComp & MacroUnitsStr & CrLf & CrLf & _
+        "Press OK to continue or Cancel to deny the compensation.", _
+        "Auto Tool Zero", MachMsgTypeOKCancel)
 
-	' Send the machine to home or safe Z
-	If (ReturnMsg) Then
-		Call MachMSG("Sends the machine to home position", "Auto Tool Zero", MachMsgTypeOK)
-		Call SendHome()
-	Else 
-		Call MachMSG("Sends the machine to safe Z position", "Auto Tool Zero", MachMsgTypeOK)
-		Call SendSafeZ(ZUpperBound)
-	End If
-	
-	' Propose the user to return to the saved position
-	' Call ReturnToSavedPos()
+    If (ReturnMsgComp = MachMsgReturnOK) Then
+        ' Set the tool length compensation for the second tool
+        ' if the user confirms the compensation
+        Call SetToolParam(SecondTool, ToolZoffsetParam, ToolComp)
+        Call Code("G43")
+    Else
+        ' Cancel tool length compensation and switch back to
+        ' the first tool if the user denies the compensation
+        Call Message("Tool length compensation canceled")
+        Call SetCurrentTool(FirstTool)
+    End If
+
+    ' Send the machine to home or safe Z
+    If (ReturnMsg) Then
+        Call MachMSG("Sends the machine to home position", "Auto Tool Zero", MachMsgTypeOK)
+        Call SendHome()
+    Else
+        Call MachMSG("Sends the machine to safe Z position", "Auto Tool Zero", MachMsgTypeOK)
+        Call SendSafeZ(ZUpperBound)
+    End If
+
+    ' Propose the user to return to the saved position
+    ' Call ReturnToSavedPos()
 End Sub
 
 ' --------------------------------------------- '
@@ -417,18 +417,18 @@ End Sub
 ' It will return 0 for rapid move (G00)
 ' and 1 for linear move (G01)
 Function GetMoveMode() As Integer
-	GetMoveMode = GetOEMDRO(MoveModeDRO)
+    GetMoveMode = GetOEMDRO(MoveModeDRO)
 End Function
 
 ' Sets the move mode (G00/G01)
 Sub SetMoveMode(ByVal MoveMode As Integer)
-	Select Case MoveMode
-		Case MoveModeRapid To MoveModeLinear
-			Call Code("G" & MoveMode)
-		Case Else
-			Call Message("Invalid move mode (" & MoveMode & ") Setting to G01")
-			Call Code("G01")
-	End Select
+    Select Case MoveMode
+        Case MoveModeRapid To MoveModeLinear
+            Call Code("G" & MoveMode)
+        Case Else
+            Call Message("Invalid move mode (" & MoveMode & ") Setting to G01")
+            Call Code("G01")
+    End Select
 End Sub
 
 ' Returns the current machine units (G20/G21)
@@ -436,20 +436,20 @@ End Sub
 ' It will return 0 for millimeters (G21)
 ' and 1 for inches (G20)
 Function GetUnits() As Integer
-	GetUnits = GetParam("Units")
+    GetUnits = GetParam("Units")
 End Function
 
 ' Sets the machine units (in/mm) (G20/G21)
 Sub SetUnits(ByVal Units As Integer)
-	Select Case Units
-		Case UnitsMM
-			Call Code("G21")
-		Case UnitsIn
-			Call Code("G20")
-		Case Else
-			Call Message("Invalid units (" & Units & ") Setting to G21")
-			Call Code("G21")
-	End Select
+    Select Case Units
+        Case UnitsMM
+            Call Code("G21")
+        Case UnitsIn
+            Call Code("G20")
+        Case Else
+            Call Message("Invalid units (" & Units & ") Setting to G21")
+            Call Code("G21")
+    End Select
 End Sub
 
 ' Returns the current coordinate mode (G90/G91)
@@ -457,22 +457,22 @@ End Sub
 ' It will return 0 for absolute coordinates (G90)
 ' and 1 for incremental coordinates (G91)
 Function GetCoordMode() As Integer
-	If (GetOEMLed(CoordAbsLED) = True) Then
-		GetCoordMode = CoordModeAbsolute
-	ElseIf (GetOEMLed(CoordIncLED) = True) Then
-		GetCoordMode = CoordModeIncremental
-	End If
+    If (GetOEMLed(CoordAbsLED) = True) Then
+        GetCoordMode = CoordModeAbsolute
+    ElseIf (GetOEMLed(CoordIncLED) = True) Then
+        GetCoordMode = CoordModeIncremental
+    End If
 End Function
 
 ' Sets the coordinate mode (G90/G91)
 Sub SetCoordMode(ByVal CoordMode As Integer)
-	Select Case CoordMode
-		Case CoordModeAbsolute To CoordModeIncremental
-			Call Code("G9" & CoordMode)
-		Case Else
-			Call Message("Invalid coordinate mode (" & CoordMode & ") Setting to G90")
-			Call Code("G90")
-	End Select
+    Select Case CoordMode
+        Case CoordModeAbsolute To CoordModeIncremental
+            Call Code("G9" & CoordMode)
+        Case Else
+            Call Message("Invalid coordinate mode (" & CoordMode & ") Setting to G90")
+            Call Code("G90")
+    End Select
 End Sub
 
 ' Returns whether the probe is wired or not
@@ -480,7 +480,7 @@ End Sub
 ' It will return True if the probe is wired
 ' and False if the probe is not wired
 Function IsProbeWired() As Boolean
-	IsProbeWired = GetOEMLed(ProbeLED)
+    IsProbeWired = GetOEMLed(ProbeLED)
 End Function
 
 ' Proposes the user to change the tool
@@ -491,186 +491,186 @@ End Function
 ' If the user presses No at any point, the question will repeat.
 ' If the user presses Cancel at any point, the macro will exit.
 Function ProposeToolChange() As Boolean
-	Dim ReturnMsg, ConfirmMsg As Integer
-	Dim DecisionMade As Boolean
+    Dim ReturnMsg, ConfirmMsg As Integer
+    Dim DecisionMade As Boolean
 
-	' Propose the user to change the tool
-	' and wait for the user to confirm or cancel
-	Do While Not DecisionMade
-		ReturnMsg = MachMSG("Change the tool and press Yes to continue.", _
-			"Auto Tool Zero", MachMsgTypeYesNoCancel)
+    ' Propose the user to change the tool
+    ' and wait for the user to confirm or cancel
+    Do While Not DecisionMade
+        ReturnMsg = MachMSG("Change the tool and press Yes to continue.", _
+            "Auto Tool Zero", MachMsgTypeYesNoCancel)
 
-		Select Case ReturnMsg
-			Case MachMsgReturnCancel
-				Call ExitMacro()
-			Case MachMsgReturnNo
-				' Repeat the question
-			Case MachMsgReturnYes
-				ConfirmMsg = MachMSG("Are you sure you want to continue?", _
-					"Auto Tool Zero", MachMsgTypeYesNoCancel)
+        Select Case ReturnMsg
+            Case MachMsgReturnCancel
+                Call ExitMacro()
+            Case MachMsgReturnNo
+                ' Repeat the question
+            Case MachMsgReturnYes
+                ConfirmMsg = MachMSG("Are you sure you want to continue?", _
+                    "Auto Tool Zero", MachMsgTypeYesNoCancel)
 
-				Select Case ConfirmMsg
-					Case MachMsgReturnCancel
-						Call ExitMacro()
-					Case MachMsgReturnNo
-						' Repeat the whole process
-					Case MachMsgReturnYes
-						ProposeToolChange = True
-						DecisionMade = True
-				End Select
-		End Select
-	Loop
+                Select Case ConfirmMsg
+                    Case MachMsgReturnCancel
+                        Call ExitMacro()
+                    Case MachMsgReturnNo
+                        ' Repeat the whole process
+                    Case MachMsgReturnYes
+                        ProposeToolChange = True
+                        DecisionMade = True
+                End Select
+        End Select
+    Loop
 End Function
 
 ' Proposes the user to send the machine to home position
 '
 ' It will display a message box with the message and
-' wait for the user to press Yes or No. If the user 
+' wait for the user to press Yes or No. If the user
 ' presses Yes, it will send the machine to home position
 ' and return True. If the user presses No, it will
 ' send the machine to safe Z position and return False.
 Function ProposeSendHome() As Boolean
-	Dim ReturnMsg, ConfirmMsg As Integer
-	Dim DecisionMade As Boolean
+    Dim ReturnMsg, ConfirmMsg As Integer
+    Dim DecisionMade As Boolean
 
-	' Propose the user to send the machine to home position
-	' and wait for the user to make a decision
-	Do While Not DecisionMade
-		ReturnMsg = MachMSG("Send the machine to home position and safe Z?" & CrLf & _
-			"If you press No, the probe will be started from the current XY position and safe Z.", _
-			"Auto Tool Zero", MachMsgTypeYesNo)
+    ' Propose the user to send the machine to home position
+    ' and wait for the user to make a decision
+    Do While Not DecisionMade
+        ReturnMsg = MachMSG("Send the machine to home position and safe Z?" & CrLf & _
+            "If you press No, the probe will be started from the current XY position and safe Z.", _
+            "Auto Tool Zero", MachMsgTypeYesNo)
 
-		If (ReturnMsg = MachMsgReturnYes) Then
-			Call SendHome()
+        If (ReturnMsg = MachMsgReturnYes) Then
+            Call SendHome()
 
-			ProposeSendHome = True
-			DecisionMade = True
-		Else
-			ConfirmMsg = MachMSG("Are you sure you want to continue from the current position?", _
-				"Auto Tool Zero", MachMsgTypeYesNo)
+            ProposeSendHome = True
+            DecisionMade = True
+        Else
+            ConfirmMsg = MachMSG("Are you sure you want to continue from the current position?", _
+                "Auto Tool Zero", MachMsgTypeYesNo)
 
-			If (ConfirmMsg = MachMsgReturnYes) Then
-				Call SendSafeZ(ZUpperBound)
+            If (ConfirmMsg = MachMsgReturnYes) Then
+                Call SendSafeZ(ZUpperBound)
 
-				ProposeSendHome = False
-				DecisionMade = True
-			End If
-		End If
-	Loop
+                ProposeSendHome = False
+                DecisionMade = True
+            End If
+        End If
+    Loop
 End Function
 
 ' Sends the machine to the home position and safe Z
 Sub SendHome()
-	' Sleep for 1 seconds
-	Call Sleep(1000)
+    ' Sleep for 1 seconds
+    Call Sleep(1000)
 
-	' Set the params to macro parameters
-	Call SetUnits(MacroUnits)
-	Call SetCoordMode(CoordModeAbsolute)
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    ' Set the params to macro parameters
+    Call SetUnits(MacroUnits)
+    Call SetCoordMode(CoordModeAbsolute)
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 
-	' Set the params to macro parameters
-	Call Debug(MsgTypeStatus, "Moving to the safe position for Z-axis in machine coordinates (" & ZUpperBound & ")")
+    ' Set the params to macro parameters
+    Call Debug(MsgTypeStatus, "Moving to the safe position for Z-axis in machine coordinates (" & ZUpperBound & ")")
 
-	' Move to the safe position for Z-axis
-	Call Code("G53 G0 Z" & ZUpperBound)
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    ' Move to the safe position for Z-axis
+    Call Code("G53 G0 Z" & ZUpperBound)
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 
-	Call Debug(MsgTypeStatus, "Moving to the machine home for X and Y axes")
+    Call Debug(MsgTypeStatus, "Moving to the machine home for X and Y axes")
 
-	' Move to the home for x and y axes
-	Call Code("G91 G28 X0 Y0")
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    ' Move to the home for x and y axes
+    Call Code("G91 G28 X0 Y0")
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 
-	Call Debug(MsgTypeStatus, "Moved to the machine home for X and Y axes and safe Z position")
+    Call Debug(MsgTypeStatus, "Moved to the machine home for X and Y axes and safe Z position")
 
-	Call SetCoordMode(CoordModeAbsolute)
+    Call SetCoordMode(CoordModeAbsolute)
 End Sub
 
 ' Returns the machine to the saved position
 Sub ReturnToSavedPos()
-	' Suggest the user to return to the saved position
-	Call CancellableMsg("Want return to saved position?", "Auto Tool Zero")
+    ' Suggest the user to return to the saved position
+    Call CancellableMsg("Want return to saved position?", "Auto Tool Zero")
 
-	' Set the params to macro parameters
-	Call SetUnits(CurrentUnits)
-	Call SetCoordMode(CoordModeAbsolute)
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    ' Set the params to macro parameters
+    Call SetUnits(CurrentUnits)
+    Call SetCoordMode(CoordModeAbsolute)
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 
-	' Move to the saved position for Z-axis
-	Call Debug(MsgTypeStatus, "Returning to the saved position for Z-axis in machine coordinates")
-	Call Code("G53 G0 Z" & CurrentZ)
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    ' Move to the saved position for Z-axis
+    Call Debug(MsgTypeStatus, "Returning to the saved position for Z-axis in machine coordinates")
+    Call Code("G53 G0 Z" & CurrentZ)
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 
-	' Move to the saved position for X and Y axes
-	Call Debug(MsgTypeStatus, "Returning to the saved position for X and Y axes in machine coordinates")
-	Call Code("G53 G0 X" & CurrentX & " Y" & CurrentY)
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    ' Move to the saved position for X and Y axes
+    Call Debug(MsgTypeStatus, "Returning to the saved position for X and Y axes in machine coordinates")
+    Call Code("G53 G0 X" & CurrentX & " Y" & CurrentY)
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 End Sub
 
 ' Probes the Z-axis of the machine and returns the
 ' position of the probe in machine coordinates.
 Function StartProbing() As Double
-	Call Sleep(1000)
-	
-	' Set the params to macro parameters
-	Call SetMoveMode(MoveModeLinear)
-	Call SetUnits(MacroUnits)
-	Call SetCoordMode(CoordModeAbsolute)
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    Call Sleep(1000)
 
-	' Start fast probing
-	Call Debug(MsgTypeStatus, "Fast probing")
-	Call Code("G31 Z" & ZLowerBound & " F" & ProbeFeed)
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    ' Set the params to macro parameters
+    Call SetMoveMode(MoveModeLinear)
+    Call SetUnits(MacroUnits)
+    Call SetCoordMode(CoordModeAbsolute)
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 
-	Call SendSafeZ(GetABSPosition(ZAxis))
+    ' Start fast probing
+    Call Debug(MsgTypeStatus, "Fast probing")
+    Call Code("G31 Z" & ZLowerBound & " F" & ProbeFeed)
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 
-	' Start finish probing
-	Call Debug(MsgTypeStatus, "Finishing probing")
-	Call Code("G31 Z" & ZLowerBound & " F" & FinishProbeFeed)
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    Call SendSafeZ(GetABSPosition(ZAxis))
 
-	Dim ProbePos As Double
-	ProbePos = GetVar(ProbeOffsetZVar)
+    ' Start finish probing
+    Call Debug(MsgTypeStatus, "Finishing probing")
+    Call Code("G31 Z" & ZLowerBound & " F" & FinishProbeFeed)
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 
-	Call Debug(MsgTypeStatus, "Raw probe position: " & ProbePos & MacroUnitsStr)
-	Call SendSafeZ(GetABSPosition(ZAxis))
+    Dim ProbePos As Double
+    ProbePos = GetVar(ProbeOffsetZVar)
 
-	' Return the probe position in machine coordinates
-	StartProbing = ProbePos
+    Call Debug(MsgTypeStatus, "Raw probe position: " & ProbePos & MacroUnitsStr)
+    Call SendSafeZ(GetABSPosition(ZAxis))
+
+    ' Return the probe position in machine coordinates
+    StartProbing = ProbePos
 End Function
 
 ' Sends the machine to safe z position from certain position.
 Sub SendSafeZ(ByVal ZPos As Double)
-	' Sleep for 1 seconds
-	Call Sleep(1000)
+    ' Sleep for 1 seconds
+    Call Sleep(1000)
 
-	Dim SafePos As Double
-	SafePos = ZPos + SafeMargin
+    Dim SafePos As Double
+    SafePos = ZPos + SafeMargin
 
-	Call Code("G53 G0 Z" & TernaryIf(SafePos > ZUpperBound, ZUpperBound, SafePos))
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    Call Code("G53 G0 Z" & TernaryIf(SafePos > ZUpperBound, ZUpperBound, SafePos))
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 End Sub
 
 ' --------------------------------------------- '
@@ -682,16 +682,16 @@ End Sub
 ' It will display the message with "DEBUG:" prefix
 ' in the status bar of Mach3 or in a dialog box.
 Sub Debug(ByVal MsgType As Integer, ByVal MsgText As String)
-	If (DebugMode) Then
-		Select Case MsgType
-			Case MsgTypeStatus
-				Call Message("DEBUG: " & MsgText)
-			Case MsgTypeDialog
-				Call CancellableMsg("DEBUG: " & MsgText, "Debug Message")
-			Case Else
-				Call ExitWithError(MsgTypeDialog, "Invalid message type")
-		End Select
-	End If
+    If (DebugMode) Then
+        Select Case MsgType
+            Case MsgTypeStatus
+                Call Message("DEBUG: " & MsgText)
+            Case MsgTypeDialog
+                Call CancellableMsg("DEBUG: " & MsgText, "Debug Message")
+            Case Else
+                Call ExitWithError(MsgTypeDialog, "Invalid message type")
+        End Select
+    End If
 End Sub
 
 ' This subroutine is used to display a message box with
@@ -701,16 +701,16 @@ End Sub
 ' press OK or Cancel. If the user presses Cancel, it will
 ' exit the macro.
 Sub CancellableMsg(ByVal Text As String, ByVal Title As String)
-	Dim ReturnMsg As Integer
-	ReturnMsg = MachMSG(Text & CrLf & CrLf & _
-		"Press OK to continue or Cancel to exit the macro.", _
-		Title, MachMsgTypeOKCancel)
+    Dim ReturnMsg As Integer
+    ReturnMsg = MachMSG(Text & CrLf & CrLf & _
+        "Press OK to continue or Cancel to exit the macro.", _
+        Title, MachMsgTypeOKCancel)
 
-	' If the user presses Cancel, it will exit the macro
-	' and restore the original parameters
-	If (ReturnMsg = MachMsgReturnCancel) Then
-		Call ExitMacro()
-	End If
+    ' If the user presses Cancel, it will exit the macro
+    ' and restore the original parameters
+    If (ReturnMsg = MachMsgReturnCancel) Then
+        Call ExitMacro()
+    End If
 End Sub
 
 ' This subroutine is called when the macro encounters an error.
@@ -718,50 +718,50 @@ End Sub
 ' It will display the error message, restore the original values
 ' and end the macro.
 Sub ExitWithError(ByVal MsgType As Integer, ByVal MsgText As String)
-	Dim Msg As String
-	Msg = "ERROR: " & MsgText
-	
-	Select Case MsgType
-		Case MsgTypeStatus
-			Call Message(Msg)
-		Case MsgTypeDialog
-			Call MachMSG(Msg & CrLf & CrLf & _
-				"Press OK to exit the macro.", _
-				"Critical Error", MachMsgTypeOK)
-		Case Else
-			Call ExitWithError(MsgTypeDialog, "Invalid message type")
-	End Select
+    Dim Msg As String
+    Msg = "ERROR: " & MsgText
 
-	Call ExitMacro()
+    Select Case MsgType
+        Case MsgTypeStatus
+            Call Message(Msg)
+        Case MsgTypeDialog
+            Call MachMSG(Msg & CrLf & CrLf & _
+                "Press OK to exit the macro.", _
+                "Critical Error", MachMsgTypeOK)
+        Case Else
+            Call ExitWithError(MsgTypeDialog, "Invalid message type")
+    End Select
+
+    Call ExitMacro()
 End Sub
 
 ' This subroutine is called when the macro is finished.
 '
 ' It will restore the original values and move to the home position.
 Sub ExitMacro()
-	' Restore original values
-	Call SetMoveMode(CurrentMoveMode)   ' Restore original move mode
-	Call SetUnits(CurrentUnits)         ' Restore original units
-	Call SetCoordMode(CurrentCoordMode) ' Restore original coordinate mode
-	Call SetFeedRate(CurrentFeed / 60)  ' Restore original feedrate
+    ' Restore original values
+    Call SetMoveMode(CurrentMoveMode)   ' Restore original move mode
+    Call SetUnits(CurrentUnits)         ' Restore original units
+    Call SetCoordMode(CurrentCoordMode) ' Restore original coordinate mode
+    Call SetFeedRate(CurrentFeed / 60)  ' Restore original feedrate
 
-	While (IsMoving())
-		Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
-	Wend
+    While (IsMoving())
+        Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
+    Wend
 
-	Call Debug(MsgTypeStatus, "Exited macro and restored original values")
-	End
+    Call Debug(MsgTypeStatus, "Exited macro and restored original values")
+    End
 End Sub
 
 ' This is a simple implementation of the ternary operator.
-' 
-' It takes a condition and two values, and returns the 
-' first value if the condition is true, and the second 
+'
+' It takes a condition and two values, and returns the
+' first value if the condition is true, and the second
 ' value if the condition is false.
 Function TernaryIf(ByVal Condition As Boolean, ByVal TrueValue As Variant, ByVal FalseValue As Variant) As Variant
-	If (Condition) Then
-		TernaryIf = TrueValue
-	Else
-		TernaryIf = FalseValue
-	End If
+    If (Condition) Then
+        TernaryIf = TrueValue
+    Else
+        TernaryIf = FalseValue
+    End If
 End Function
