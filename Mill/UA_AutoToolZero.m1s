@@ -676,9 +676,6 @@ End Function
 
 ' Sends the machine to safe z position from certain position.
 Sub SendSafeZ(ByVal ZPos As Double)
-    ' Sleep for 1 seconds
-    Call Sleep(1000)
-
     Dim SafePos As Double
     SafePos = ZPos + SafeMargin
 
