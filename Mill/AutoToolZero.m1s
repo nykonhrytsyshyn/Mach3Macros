@@ -1,7 +1,7 @@
 ' --------------------------------------------- '
 ' Macro Name: Auto Tool Zero                    '
 ' Developer: Nykon Hrytsyshyn                   '
-' Date of release: 2025-05-22                   '
+' Date of release: 2025-05-23                   '
 ' --------------------------------------------- '
 
 Option Explicit
@@ -137,8 +137,20 @@ Const MsgTypeStatus As Integer = 0 ' Displays a message in the status bar of Mac
 Const MsgTypeDialog As Integer = 1 ' Displays a message in a dialog box
 
 ' Macro modes
-Const ZeroCoordMode As Integer = 1 ' Setting Z-axis to zero by probing
-Const ToolCompMode As Integer = 2  ' Setting tool length compensation by probing
+Const NameKey As String = "name"
+Const DescKey As String = "desc"
+
+Dim MacroModes(2) As Object
+
+' Zero Tool mode
+Set MacroModes(1) = CreateObject("Scripting.Dictionary")
+MacroModes(1).Add NameKey, "Zero Tool"
+MacroModes(1).Add DescKey, "Set Z-axis to zero by probing the touch plate"
+
+' Tool Length Compensation mode
+Set MacroModes(2) = CreateObject("Scripting.Dictionary")
+MacroModes(2).Add NameKey, "Tool Length Compensation"
+MacroModes(2).Add DescKey, "Set tool length compensation by probing the touch plate"
 
 ' --------------------------------------------- '
 '         Cached variables for the macro        '
@@ -219,8 +231,7 @@ Sub Main()
     MacroMode = SuggestModes()
 
     ' Debug selected mode
-    Call Debug(MsgTypeStatus, "Selected mode: " & MacroMode & " (" & _
-        TernaryIf(MacroMode = ZeroCoordMode, "Zero Tool", "Set Tool Length Compensation") & ")")
+    Call Debug(MsgTypeStatus, "Selected mode: " & MacroMode)
 
     Call RunMacroMode(MacroMode) ' Run the selected mode
     Call ExitMacro()             ' Exit the macro and restore original values
@@ -233,11 +244,17 @@ End Sub
 ' This function is called to suggest the user the
 ' available modes of interaction with the macro.
 Function SuggestModes() As Integer
+    Dim ModesStr As String
+    Dim Mode As Integer
+
+    ' Loop through the available modes and add them to the string
+    For Mode = 1 To UBound(MacroModes)
+        ModesStr = ModesStr & CrLf & Mode & ". " & MacroModes(Mode)(DescKey)
+    Next
+
     ' Tell the user about available modes
     Call CancellableMsg("After pressing OK, you will be prompted to select the mode of operation." & CrLf & CrLf & _
-        "Available modes:" & CrLf & _
-        ZeroCoordMode & ". Set Z-axis to zero by probing the touch plate." & CrLf & _
-        ToolCompMode & ". Set tool length compensation by probing the touch plate.", _
+        "Available modes:" & CrLf & ModesStr, _
         "Auto Tool Zero")
 
     ' Ask user for the mode of the operation and return it
@@ -250,9 +267,9 @@ End Function
 ' selected by the user.
 Sub RunMacroMode(ByVal Mode As Integer)
     Select Case Mode
-        Case ZeroCoordMode
+        Case 1
             Call ZeroZCoordinate()
-        Case ToolCompMode
+        Case 2
             Call ToolLengthCompensation()
         Case Else
             Call ExitWithError(MsgTypeDialog, "Invalid mode selected")
@@ -263,8 +280,6 @@ End Sub
 '
 ' It will probe the Z-axis of the current tool and save
 ' Z-axis position to local coordinate system. (G54-G59)
-'
-' Program mode = 0 (ZeroCoordMode)
 Sub ZeroZCoordinate()
     ' Propose the user to enter the offset value for Z-Axis
     ' which will be added to the probe position
@@ -288,7 +303,9 @@ Sub ZeroZCoordinate()
         "Auto Tool Zero", MachMsgTypeOKCancel)
 
     ' Set the Z-axis offset in the current fixture
-    Call SetOEMDRO(FixtureOffsetZDRO, ProbePos)
+    If (ReturnMsgSet = MachMsgReturnOK) Then
+        Call SetOEMDRO(FixtureOffsetZDRO, ProbePos)
+    End If
 
     ' Send the machine to home or safe Z
     If (ReturnMsg) Then
@@ -309,8 +326,6 @@ End Sub
 ' probe the Z-axis of the new tool and calculate the difference
 ' between the two tool lengths. The result will be saved in the
 ' tool length compensation table for the second tool.
-'
-' Program mode = 1 (ToolCompMode)
 Sub ToolLengthCompensation()
     ' Cancel tool length compensation
     Call Code("G49")
