@@ -358,7 +358,7 @@ Sub ZeroZCoordinate()
 
     ' Ask the user for a confirmation to start probing
     Dim blnAnswerProbe As Integer
-    blnAnswerProbe = MachMSG("Start probing the Z-axis?" & CRLF & _
+    blnAnswerProbe = MachMSG("Start probing the Z-axis?" & CRLF & CRLF & _
         "Press Yes to continue or No to cancel.", _
         "Auto Tool Zero", MSG_TYPE_YES_NO)
 
@@ -447,7 +447,7 @@ Sub ToolLengthCompensation()
 
     ' Ask the user for a confirmation to start probing
     Dim blnAnswerProbe As Integer
-    blnAnswerProbe = MachMSG("Start probing the Z-axis?" & CRLF & _
+    blnAnswerProbe = MachMSG("Start probing the Z-axis?" & CRLF & CRLF & _
         "Press Yes to continue or No to cancel.", _
         "Auto Tool Zero", MSG_TYPE_YES_NO)
 
@@ -661,35 +661,33 @@ End Function
 Function ProposeToolChange() As Boolean
     Dim intReturn As Integer
     Dim intConfirm As Integer
-    Dim blnDecisionMade As Boolean
 
-    ' Propose the user to change the tool
-    ' and wait for the user to confirm or cancel
-    Do While Not blnDecisionMade
+    ' Loop until a definitive decision (Yes or Cancel) is made
+    Do
         intReturn = MachMSG("Change the tool and press OK to continue.", _
             "Auto Tool Zero", MSG_TYPE_OK_CANCEL)
 
         If (intReturn = MSG_RETURN_OK) Then
             ' User pressed OK, ask for confirmation
-            intConfirm = MachMSG("Are you sure you have changed the tool?" & CRLF & _
+            intConfirm = MachMSG("Are you sure you have changed the tool?" & CRLF & CRLF & _
                 "If you press No, the macro will repeat the question.", _
                 "Auto Tool Zero", MSG_TYPE_YES_NO_CANCEL)
 
             Select Case intConfirm
                 Case MSG_RETURN_CANCEL
-                    ' User pressed Cancel, exit the macro
+                    ' User pressed Cancel, exit the macro immediately
                     ProposeToolChange = False
-                    blnDecisionMade = True
+                    Exit Do
                 Case MSG_RETURN_NO
-                    ' Repeat the question
+                    ' User chose No, loop will repeat (implicit)
                 Case MSG_RETURN_YES
                     ProposeToolChange = True
-                    blnDecisionMade = True
+                    Exit Do
             End Select
         Else
-            ' User pressed Cancel, return False
+            ' User pressed Cancel in the initial prompt, exit the macro immediately
             ProposeToolChange = False
-            blnDecisionMade = True
+            Exit Do
         End If
     Loop
 End Function
@@ -703,30 +701,26 @@ End Function
 ' send the machine to safe Z position and return False.
 Function ProposeSendHome() As Boolean
     Dim intReturn As Integer
-    Dim intConfirm As Integer
-    Dim blnDecisionMade As Boolean
 
-    ' Propose the user to send the machine to home position
-    ' and wait for the user to make a decision
-    Do While Not blnDecisionMade
-        intReturn = MachMSG("Send the machine to home position (G28) and safe Z?" & CRLF & _
+    ' Loop until a definitive decision (Yes or No with confirmation) is made
+    Do
+        intReturn = MachMSG("Send the machine to home position (G28) and safe Z?" & CRLF & CRLF & _
             "If you press No, the probe will be started from the current XY position and safe Z.", _
             "Auto Tool Zero", MSG_TYPE_YES_NO)
 
         If (intReturn = MSG_RETURN_YES) Then
             Call SendHome()
-
             ProposeSendHome = True
-            blnDecisionMade = True
+            Exit Do
         Else
+            Dim intConfirm As Integer
             intConfirm = MachMSG("Are you sure you want to continue from the current position?", _
                 "Auto Tool Zero", MSG_TYPE_YES_NO)
 
             If (intConfirm = MSG_RETURN_YES) Then
                 Call SendSafeZ(Z_UPPER_BOUND)
-
                 ProposeSendHome = False
-                blnDecisionMade = True
+                Exit Do
             End If
         End If
     Loop
@@ -740,10 +734,18 @@ End Function
 ' and return True. If the user presses No, it will
 ' stay in the current position and return False.
 Function ProposeReturnToSavedPos() As Boolean
+    ' If the machine is already in the saved position, do not propose to return
+    If (GetABSPosition(Z_AXIS) = SAVED_Z And _
+        GetABSPosition(X_AXIS) = SAVED_X And _
+        GetABSPosition(Y_AXIS) = SAVED_Y) Then
+        ProposeReturnToSavedPos = False
+        Exit Function
+    End If
+
     Dim intReturn As Integer
 
     ' Propose the user to return to the saved position
-    intReturn = MachMSG("Return to the saved position?" & CRLF & _
+    intReturn = MachMSG("Return to the saved position?" & CRLF & CRLF & _
         "If you press No, the machine will stay in the current position.", _
         "Auto Tool Zero", MSG_TYPE_YES_NO)
 
@@ -836,22 +838,22 @@ Function StartProbing() As Object
 
     Dim dblProbePos As Double
     Dim intResponse As Integer
-    Dim blnProbingDone As Boolean
     Dim blnExitState As Boolean
 
-    Do While Not blnProbingDone
-        ' Start fast probing
-        Call Message("Fast probing")
+    Do
+        ' Perform fast probing
+        Call Message("Fast probing...")
         Call Code("G31 Z" & Z_LOWER_BOUND & " F" & PROBE_FEED)
         While (IsMoving())
             Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
         Wend
 
-        ' Send the machine to safe Z position
+        ' Send the machine to safe Z position after fast probe
+        ' (Formula: Safe Z = Current Z + SAFE_MARGIN)
         Call SendSafeZ(GetABSPosition(Z_AXIS))
 
-        ' Start finish probing
-        Call Message("Finishing probing")
+        ' Perform finish probing
+        Call Message("Finishing probing...")
         Call Code("G31 Z" & Z_LOWER_BOUND & " F" & FINISH_PROBE_FEED)
         While (IsMoving())
             Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
@@ -860,8 +862,8 @@ Function StartProbing() As Object
         ' Write the probe position to the variable
         dblProbePos = GetVar(VAR_PROBE_OFFSET_Z)
 
-        ' Send the machine to safe Z position
-        Call Message("Probe finished")
+        ' Send the machine to safe Z position after finish probe
+        Call Message("Probe finished.")
         Call SendSafeZ(GetABSPosition(Z_AXIS))
 
         ' Display probe result and ask for action
@@ -871,19 +873,22 @@ Function StartProbing() As Object
 
         Select Case intResponse
             Case MSG_RETURN_TRY
-                ' Send to safe Z position and re-probe
+                ' Continue loop to re-probe
                 Call SendSafeZ(Z_UPPER_BOUND)
                 Call Message("Re-probing...")
             Case MSG_RETURN_CONTINUE
                 ' User accepts the probe, exit loop
-                blnProbingDone = True
+                blnExitState = False
+                Exit Do
             Case MSG_RETURN_CANCEL
                 ' User cancels, exit macro
-                blnProbingDone = True
                 blnExitState = True
+                Exit Do
             Case Else
-                ' Unexpected response, also exit
+                ' Unexpected response, also exit as an error
                 Call ExitWithError(MACRO_MSG_TYPE_STATUS, "Unexpected response during probing. Exiting.")
+                blnExitState = True
+                Exit Do
         End Select
     Loop
 
@@ -936,7 +941,7 @@ End Sub
 ' value. The value must be a number and must be within the
 ' specified bounds (MinValue and MaxValue).
 Function BoundedIntQuestion(ByVal QuestionText As String, ByVal MinValue As Integer, ByVal MaxValue As Integer) As Integer
-    BoundedIntQuestion = CInt(BoundedNumQuestion(QuestionText, MinValue, MaxValue))
+    BoundedIntQuestion = CInt(BoundedDoubleQuestion(QuestionText, MinValue, MaxValue))
 End Function
 
 ' This function is used to display a message box with
@@ -945,7 +950,7 @@ End Function
 ' It will repeat the question until the user enters a valid
 ' value. The value must be a number.
 Function IntQuestion(ByVal QuestionText As String) As Integer
-    IntQuestion = CInt(NumQuestion(QuestionText))
+    IntQuestion = CInt(DoubleQuestion(QuestionText))
 End Function
 
 ' This function is used to display a message box with
@@ -955,45 +960,23 @@ End Function
 ' value. The value must be a number and must be within the
 ' specified bounds (MinValue and MaxValue).
 Function BoundedDoubleQuestion(ByVal QuestionText As String, ByVal MinValue As Double, ByVal MaxValue As Double) As Double
-    BoundedDoubleQuestion = CDbl(BoundedNumQuestion(QuestionText, MinValue, MaxValue))
-End Function
-
-' This function is used to display a message box with
-' an input field for the user to enter a value.
-'
-' It will repeat the question until the user enters a valid
-' value. The value must be a number.
-Function DoubleQuestion(ByVal QuestionText As String) As Double
-    DoubleQuestion = CDbl(NumQuestion(QuestionText))
-End Function
-
-' This function is used to display a message box with
-' an input field for the user to enter a value.
-'
-' It will repeat the question until the user enters a valid
-' value. The value must be a number and must be within the
-' specified bounds (MinValue and MaxValue).
-Function BoundedNumQuestion(ByVal QuestionText As String, ByVal MinValue As Double, ByVal MaxValue As Double) As Variant
     Dim strAnswer As String
-    Dim blnValidInput As Boolean
+    Dim dblAnswer As Double
 
-    Do While Not blnValidInput
+    Do
         strAnswer = Question(QuestionText)
 
         If (IsNumeric(strAnswer)) Then
-            Dim dblAnswer As Double
             dblAnswer = CDbl(strAnswer)
 
             If (dblAnswer >= MinValue And dblAnswer <= MaxValue) Then
-                BoundedNumQuestion = dblAnswer
-                blnValidInput = True
+                BoundedDoubleQuestion = dblAnswer
+                Exit Do
             Else
                 Call MachMSG("Invalid input. Please enter a number between " & MinValue & " and " & MaxValue & ".", "Error", MSG_TYPE_OK)
-                blnValidInput = False
             End If
         Else
             Call MachMSG("Invalid input. Please enter a number.", "Error", MSG_TYPE_OK)
-            blnValidInput = False
         End If
     Loop
 End Function
@@ -1003,19 +986,17 @@ End Function
 '
 ' It will repeat the question until the user enters a valid
 ' value. The value must be a number.
-Function NumQuestion(ByVal QuestionText As String) As Variant
+Function DoubleQuestion(ByVal QuestionText As String) As Double
     Dim strAnswer As String
-    Dim blnValidInput As Boolean
 
-    Do While Not blnValidInput
+    Do
         strAnswer = Question(QuestionText)
 
         If (IsNumeric(strAnswer)) Then
-            NumQuestion = strAnswer
-            blnValidInput = True
+            DoubleQuestion = CDbl(strAnswer)
+            Exit Do
         Else
             Call MachMSG("Invalid input. Please enter a number.", "Error", MSG_TYPE_OK)
-            blnValidInput = False
         End If
     Loop
 End Function
@@ -1077,7 +1058,7 @@ Sub ExitMacro()
         Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
     Wend
 
-    Call Debug(MACRO_MSG_TYPE_STATUS, "Exited macro and restored original properties")
+    Call Message("Exited macro and restored original properties")
     End
 End Sub
 
