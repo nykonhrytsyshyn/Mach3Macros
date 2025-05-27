@@ -2,8 +2,8 @@
 <div align="center">
   <a rel="noopener noreferrer" target="_blank" href="#">
     <picture>
-      <source media="(prefers-color-scheme: light)" srcset="https://capsule-render.vercel.app/api?type=venom&color=gradient&customColorList=18&height=200&descSize=13&descAlignY=62&animation=fadeIn&section=header&text=Mach3%20Macros&fontColor=2C2C2C&fontAlignY=42&fontSize=60&desc=Useful%20VBScript%20Macros%20for%20Mach3%20CNC%20Software">
-      <img alt="Header" src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=18&height=200&descSize=13&descAlignY=48&animation=fadeIn&section=header&text=Mach3%20Macros&fontAlignY=38&fontSize=60&desc=Useful%20VBScript%20Macros%20for%20Mach3%20CNC%20Software" width="100%">
+      <source media="(prefers-color-scheme: light)" srcset="https://capsule-render.vercel.app/api?type=venom&color=gradient&customColorList=18&height=200&descSize=13&descAlignY=62&animation=fadeIn&section=header&text=Mach3%20Macros&fontColor=2C2C2C&fontAlignY=46&fontSize=60&desc=Useful%20VBScript%20Macros%20for%20Mach3%20CNC%20Software">
+      <img alt="Header" src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=18&height=200&descSize=13&descAlignY=48&animation=fadeIn&section=header&text=Mach3%20Macros&fontAlignY=32&fontSize=60&desc=Useful%20VBScript%20Macros%20for%20Mach3%20CNC%20Software" width="100%">
     </picture>
   </a>
   <p>
