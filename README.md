@@ -12,22 +12,22 @@
   </p>
   • • •<br><br>
   <div>
-    <a rel="noopener noreferrer" href="https://github.com/p0loskun/mach3macros/stargazers">
+    <a rel="noopener noreferrer" href="https://github.com/p0loskun/Mach3Macros/stargazers">
       <picture>
-        <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/stars/p0loskun/mach3macros?style=for-the-badge&color=f9ebbf&labelColor=fcf6e4">
-        <img alt="Stars" src="https://img.shields.io/github/stars/p0loskun/mach3macros?style=for-the-badge&color=f9ebbf&labelColor=302d41">
+        <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/stars/p0loskun/Mach3Macros?style=for-the-badge&color=f9ebbf&labelColor=fcf6e4">
+        <img alt="Stars" src="https://img.shields.io/github/stars/p0loskun/Mach3Macros?style=for-the-badge&color=f9ebbf&labelColor=302d41">
       </picture>
     </a>
-    <a rel="noopener noreferrer" href="https://github.com/p0loskun/mach3macros/contributors">
+    <a rel="noopener noreferrer" href="https://github.com/p0loskun/Mach3Macros/contributors">
       <picture>
-        <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/contributors/p0loskun/mach3macros?style=for-the-badge&color=d5c3f0&labelColor=ece3f9">
-        <img alt="Contributors" src="https://img.shields.io/github/contributors/p0loskun/mach3macros?style=for-the-badge&color=d5c3f0&labelColor=302d41">
+        <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/contributors/p0loskun/Mach3Macros?style=for-the-badge&color=d5c3f0&labelColor=ece3f9">
+        <img alt="Contributors" src="https://img.shields.io/github/contributors/p0loskun/Mach3Macros?style=for-the-badge&color=d5c3f0&labelColor=302d41">
       </picture>
     </a>
     <a rel="noopener noreferrer" href="#">
       <picture>
-        <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/languages/code-size/p0loskun/mach3macros?style=for-the-badge&color=b0e99e&labelColor=e1f9d9">
-        <img alt="GitHub code size" src="https://img.shields.io/github/languages/code-size/p0loskun/mach3macros?style=for-the-badge&color=b0e99e&labelColor=302d41">
+        <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/github/languages/code-size/p0loskun/Mach3Macros?style=for-the-badge&color=b0e99e&labelColor=e1f9d9">
+        <img alt="GitHub code size" src="https://img.shields.io/github/languages/code-size/p0loskun/Mach3Macros?style=for-the-badge&color=b0e99e&labelColor=302d41">
       </picture>
     </a>
   </div>
