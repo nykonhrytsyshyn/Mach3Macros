@@ -178,6 +178,7 @@ Dim SAVED_UNITS As Integer          ' Saved units of measurement (inches/mm)
 Dim SAVED_EN_TOOL_LENGTH As Boolean ' Saved tool length compensation state (G43/G49)
 Dim SAVED_DISTANCE_MODE As Integer  ' Saved distance mode (G90/G91)
 Dim SAVED_FEED As Double            ' Saved feedrate (units/min)
+Dim SAVED_Z_OFFSET As Double        ' Saved Z-axis offset for current fixture
 Dim SAVED_X As Double               ' Saved X-axis machine position
 Dim SAVED_Y As Double               ' Saved Y-axis machine position
 Dim SAVED_Z As Double               ' Saved Z-axis machine position
@@ -259,6 +260,7 @@ Sub InitCache()
     SAVED_EN_TOOL_LENGTH = IsToolLengthEnabled()
     SAVED_DISTANCE_MODE = GetDistMode()
     SAVED_FEED = FeedRate()
+    SAVED_Z_OFFSET = GetOEMDRO(DRO_FIXTURE_OFFSET_Z)
     SAVED_X = GetABSPosition(X_AXIS)
     SAVED_Y = GetABSPosition(Y_AXIS)
     SAVED_Z = GetABSPosition(Z_AXIS)
@@ -318,6 +320,9 @@ Sub ZeroZCoordinate()
     ' Disable tool length compensation
     Call SetToolLengthEnabled(False)
 
+    ' Set fixture offset to upper bound
+    Call SetOEMDRO(DRO_FIXTURE_OFFSET_Z, Z_UPPER_BOUND)
+
     ' If ENABLE_PROBE_CURR_POS state is set to True, it will
     ' propose the user to send the machine to home position.
     ' Otherwise, it will send the machine to home position
@@ -358,9 +363,7 @@ Sub ZeroZCoordinate()
         Call Debug(MACRO_MSG_TYPE_STATUS, "Return message: " & blnAnswerSet)
 
         ' Set the Z-axis offset in the current fixture
-        If (blnAnswerSet = MSG_RETURN_OK) Then
-            Call SetOEMDRO(DRO_FIXTURE_OFFSET_Z, dblProbePos)
-        End If
+        Call SetOEMDRO(DRO_FIXTURE_OFFSET_Z, TernaryIf(blnAnswerSet = MSG_RETURN_OK, dblProbePos, SAVED_Z_OFFSET))
     End If
 
     ' Send the machine to home or safe Z
@@ -813,7 +816,7 @@ Function StartProbing() As Object
     Do While Not blnProbingDone
         ' Start fast probing
         Call Debug(MACRO_MSG_TYPE_STATUS, "Fast probing")
-        Call Code("G53 G31 Z" & Z_LOWER_BOUND & " F" & PROBE_FEED)
+        Call Code("G31 Z" & Z_LOWER_BOUND & " F" & PROBE_FEED)
         While (IsMoving())
             Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
         Wend
@@ -822,7 +825,7 @@ Function StartProbing() As Object
 
         ' Start finish probing
         Call Debug(MACRO_MSG_TYPE_STATUS, "Finishing probing")
-        Call Code("G53 G31 Z" & Z_LOWER_BOUND & " F" & FINISH_PROBE_FEED)
+        Call Code("G31 Z" & Z_LOWER_BOUND & " F" & FINISH_PROBE_FEED)
         While (IsMoving())
             Call Sleep(100) ' Sleep, so other threads can run while we’re waiting
         Wend
