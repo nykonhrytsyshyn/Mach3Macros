@@ -609,10 +609,10 @@ Function IsToolChanging() As Boolean
     IsToolChanging = GetOEMLED(LED_TOOL_CHANGING)
 End Function
 
-' Returns the current coordinate mode (G90/G91).
+' Returns the current distance mode (G90/G91).
 '
-' It will return 0 for absolute coordinates (G90)
-' and 1 for incremental coordinates (G91).
+' It will return 0 for absolute distance mode (G90)
+' and 1 for incremental distance mode (G91).
 Function GetDistMode() As Integer
     If (GetOEMLed(LED_COORD_ABS) = True) Then
         GetDistMode = DIST_MODE_ABS
@@ -621,13 +621,13 @@ Function GetDistMode() As Integer
     End If
 End Function
 
-' Sets the coordinate mode (G90/G91)
+' Sets the distance mode (G90/G91)
 Sub SetDistMode(ByVal DistMode As Integer)
     Select Case DistMode
         Case DIST_MODE_ABS To DIST_MODE_INC
             Call Code("G9" & DistMode)
         Case Else
-            Call Message("Invalid coordinate mode (" & DistMode & ") Setting to G90")
+            Call Message("Invalid distance mode (" & DistMode & ") Setting to G90")
             Call Code("G90")
     End Select
 End Sub
