@@ -50,9 +50,19 @@
     </ol>
   </div>
   <br>
-  <p><i>For any questions or issues related to the script, feel free to open an issue in the repository.</i></p> 
+  <p><i>For any questions or issues related to the script, feel free to open an issue in the repository.</i></p>
   <h1></h1>
   <h6>
-    &copy; 2025 Nykon Hrytsyshyn
+    <br />
+    This project is dual-licensed to cover both code and documentation:
+    <br />
+    <a rel="noopener noreferrer" href="LICENSE-MIT.md">MIT License</a> (Code) •
+    <a rel="noopener noreferrer" href="LICENSE-CC-BY.md">CC BY 4.0</a> (Manual)
+    <br /><br />
+    <ul align="justify">
+      <li><b>Macros & Scripts:</b> You may freely use, modify, and distribute the <code>.m1s</code> code under the MIT License.</li>
+      <li><b>Manual & Documentation:</b> The "AutoToolZero" guide, illustrations, and screenshots are licensed under CC BY 4.0, requiring proper attribution to the author.</li>
+      <li><b>Disclaimer:</b> All materials are provided "as is" without any warranties. The author is not responsible for any damage to hardware or machinery resulting from the use of these scripts.</li>
+    </ul>
   </h6>
 </div>
