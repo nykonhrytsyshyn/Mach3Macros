@@ -19,8 +19,8 @@ Example:
 By submitting this pull request, I understand and agree that:
 
 - [ ] This pull request may be closed without being merged if it does not meet
-  technical requirements.
+      technical requirements.
 - [ ] My contribution may be reviewed, adapted, or reimplemented to ensure
-  compatibility and consistency with the project's goals and standards.
+      compatibility and consistency with the project's goals and standards.
 - [ ] I have read and agree to the project's contributing guidelines and code of
-  conduct.
+      conduct.
